@@ -1,0 +1,10 @@
+[{"id":1,"rating":5,"review":"iaculis congue vivamus metus arcu adipiscing molestie hendrerit at","user":"spetruskevich0","date":"2018-04-06 21:02:03","restaurantid":1},
+{"id":2,"rating":5,"review":"aliquam sit amet diam in magna bibendum imperdiet nullam orci","user":"shaggas1","date":"2016-05-17 06:05:21","restaurantid":3},
+{"id":3,"rating":8,"review":"vulputate luctus cum sociis natoque","user":"dodlin2","date":"2013-06-20 04:28:33","restaurantid":3},
+{"id":4,"rating":8,"review":"tincidunt in leo maecenas pulvinar lobortis est phasellus sit","user":"cbaldacco3","date":"2017-09-01 03:08:17","restaurantid":2},
+{"id":5,"rating":8,"review":"primis in faucibus orci luctus et","user":"delcocks4","date":"2017-07-11 22:54:02","restaurantid":3},
+{"id":6,"rating":2,"review":"nulla tempus vivamus","user":"trookes5","date":"2014-03-21 17:21:45","restaurantid":2},
+{"id":7,"rating":9,"review":"sem praesent id massa","user":"dyoung6","date":"2014-12-30 09:07:27","restaurantid":3},
+{"id":8,"rating":7,"review":"sit amet sapien dignissim","user":"rgoss7","date":"2016-02-27 03:10:57","restaurantid":1},
+{"id":9,"rating":6,"review":"nisi venenatis tristique fusce","user":"everonique8","date":"2014-06-29 13:39:15","restaurantid":3},
+{"id":10,"rating":9,"review":"nam nulla integer pede justo lacinia eget tincidunt eget","user":"alacase9","date":"2016-06-05 20:05:57","restaurantid":1}]
