@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Data.Entity.Validation;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using RestaurantReviews.Data;
 using RestaurantReviews.Library.Models;
 
@@ -13,7 +10,6 @@ namespace RestaurantReviews.Library.Repositories
     public class RestaurantRepository : IRestaurantReviewsRepository<Restaurant>
     {
         private readonly RestaurantReviewsContext _context;
-        //private DbSet<Restaurant> _entities;
 
         public RestaurantRepository(RestaurantReviewsContext context)
         {
@@ -33,7 +29,6 @@ namespace RestaurantReviews.Library.Repositories
                 {
                     throw new ArgumentNullException("entity");
                 }
-                //this.Entities.Add(entity);
                 this._context.Restaurants.Add(LibraryToData(entity));
                 this._context.SaveChanges();
             }
@@ -62,33 +57,51 @@ namespace RestaurantReviews.Library.Repositories
                 {
                     throw new ArgumentNullException("entity");
                 }
-                this._context.SaveChanges();
-            }
-            catch (DbEntityValidationException dbEx)
-            {
-                var msg = string.Empty;
-                foreach (var validationErrors in dbEx.EntityValidationErrors)
-                {
-                    foreach (var validationError in validationErrors.ValidationErrors)
-                    {
-                        msg += Environment.NewLine + string.Format("Property: {0} Error: {1}", validationError.PropertyName, validationError.ErrorMessage);
-                    }
-                }
-                var fail = new Exception(msg, dbEx);
-                throw fail;
-            }
-        }
 
-        public void Delete(Restaurant entity)
-        {
-            try
-            {
-                if (entity == null)
+                var oldRest = _context.Restaurants.Find(entity.Id);
+
+                if (oldRest == null)
                 {
                     throw new ArgumentNullException("entity");
                 }
-                //this.Entities.Remove(entity);
-                this._context.Restaurants.Remove(LibraryToData(entity));
+                //_context.Entry(entity).State = EntityState.Modified;
+                //_context.Entry(oldRest).CurrentValues.SetValues(entity);
+                oldRest.Name = entity.Name;
+                oldRest.Street = entity.Street;
+                oldRest.City = entity.City;
+                oldRest.State = entity.State;
+                oldRest.Country = entity.Country;
+                oldRest.Zipcode = entity.Zipcode;
+                oldRest.Phone = entity.Phone;
+                oldRest.Website = entity.Website;
+                
+                this._context.SaveChanges();
+            }
+            catch (DbEntityValidationException dbEx)
+            {
+                var msg = string.Empty;
+                foreach (var validationErrors in dbEx.EntityValidationErrors)
+                {
+                    foreach (var validationError in validationErrors.ValidationErrors)
+                    {
+                        msg += Environment.NewLine + string.Format("Property: {0} Error: {1}", validationError.PropertyName, validationError.ErrorMessage);
+                    }
+                }
+                var fail = new Exception(msg, dbEx);
+                throw fail;
+            }
+        }
+
+        public void Delete(object id)
+        {
+            try
+            {
+                var rest = this._context.Restaurants.Find(id);
+                if (rest == null)
+                {
+                    throw new ArgumentNullException("entity");
+                }
+                this._context.Restaurants.Remove(rest);
                 this._context.SaveChanges();
             }
             catch (DbEntityValidationException dbEx)
@@ -107,39 +120,66 @@ namespace RestaurantReviews.Library.Repositories
             }
         }
 
-        public virtual IEnumerable<Restaurant> Table
+        public virtual IEnumerable<Restaurant> GetAll
         {
             get
             {
-                //return this._context.Restaurant;
                 var list =  this._context.Restaurants.ToList();
                 return list.Select(x => DataToLibrary(x)).ToList();
             }
         }
 
-        //private IDbSet<RestaurantReviews.Data.Models.Restaurant> Entities
-        //{
-        //    get
-        //    {
-        //        if (_entities == null)
-        //        {
-        //            _entities = _context.Set<RestaurantReviews.Data.Models.Restaurant>();
-        //        }
-        //        return _entities;
-        //    }
-        //}
+        public virtual IEnumerable<Restaurant> SortByNameAscending(string q = null)
+        {
+            if (q != null)
+                return SearchRestaurants(q).OrderBy(x => x.Name);
+            return GetAll.OrderBy(x => x.Name);
+        }
 
-        public static Restaurant DataToLibrary(RestaurantReviews.Data.Models.Restaurant dataModel)
+        public virtual IEnumerable<Restaurant> SortByNameDescending(string q = null)
+        {
+            if (q != null)
+                return SearchRestaurants(q).OrderByDescending(x => x.Name);
+            return GetAll.OrderByDescending(x => x.Name);
+        }
+
+        public virtual IEnumerable<Restaurant> SortByRating(string q = null)
+        {
+            if (q != null)
+                return SearchRestaurants(q).OrderByDescending(x => x.AverageRating)
+                .ThenByDescending(x => x.ReviewCount);
+            return GetAll.OrderByDescending(x => x.AverageRating)
+                .ThenByDescending(x => x.ReviewCount);
+        }
+
+        public virtual IEnumerable<Restaurant> Top3()
+        {
+            return GetAll.OrderByDescending(x => x.AverageRating)
+                .ThenByDescending(x => x.ReviewCount).Take(3);
+        }
+
+        public virtual IEnumerable<Restaurant> SortByNumberOfReviews(string q = null)
+        {
+            if (q != null)
+                return SearchRestaurants(q).OrderByDescending(x => x.ReviewCount)
+                .ThenByDescending(x => x.AverageRating);
+            return GetAll.OrderByDescending(x => x.ReviewCount)
+                .ThenByDescending(x => x.AverageRating);
+        }
+
+        public virtual IEnumerable<Restaurant> SearchRestaurants(string q)
+        {
+                var list = _context.Restaurants.Where(s => s.Name.Contains(q) || s.Street.Contains(q) || s.City.Contains(q) || s.State.Contains(q) || s.Zipcode.Contains(q) || s.Phone.Contains(q)).ToList();
+                return list.Select(x => DataToLibrary(x)).ToList();
+        }
+
+        public Restaurant DataToLibrary(Data.Models.Restaurant dataModel)
         {
             double rating = 0;
-            using (var db = new RestaurantReviewsContext())
-            {
-                var reviews = db.Reviews.Where(r => r.RestaurantId == dataModel.Id);
-                if (reviews.Count() != 0)
-                    rating = reviews.Average(r => r.Rating);
-            }
-
-            var list = dataModel.Reviews.ToList();
+            var reviews = _context.Reviews.Where(r => r.RestaurantId == dataModel.Id);
+            if (reviews.Count() != 0)
+                rating = reviews.Average(r => r.Rating);
+            //var list = dataModel.Reviews.ToList();
 
             var libModel = new Restaurant()
             {
@@ -155,15 +195,15 @@ namespace RestaurantReviews.Library.Repositories
                 Created = dataModel.Created,
                 Modified = dataModel.Modified,
                 AverageRating = Math.Truncate(rating * 100) / 100,
-                Reviews = list.Select(x => ReviewRepository.DataToLibrary(x)).ToList()
-                //reviews = (List<Review>) dataModel.Reviews
+                ReviewCount = reviews.Count(),
+                //Reviews = list.Select(x => ReviewRepository.DataToLibrary(x)).ToList()
             };
             return libModel;
         }
 
-        public static RestaurantReviews.Data.Models.Restaurant LibraryToData(Restaurant libModel)
+        public Data.Models.Restaurant LibraryToData(Restaurant libModel)
         {
-            var dataModel = new RestaurantReviews.Data.Models.Restaurant()
+            var dataModel = new Data.Models.Restaurant()
             {
                 Name = libModel.Name,
                 Street = libModel.Street,

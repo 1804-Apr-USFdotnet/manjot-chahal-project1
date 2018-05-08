@@ -1,4 +1,4 @@
-﻿@model IEnumerable<RestaurantReviews.Data.Models.Restaurant>
+﻿@model IEnumerable<RestaurantReviews.Library.Models.Restaurant>
 
 @{
     ViewBag.Title = "Index";
@@ -94,7 +94,7 @@
             @Html.DisplayFor(modelItem => item.AverageRating)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Reviews.Count)
+            @Html.DisplayFor(modelItem => item.ReviewCount)
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Street)

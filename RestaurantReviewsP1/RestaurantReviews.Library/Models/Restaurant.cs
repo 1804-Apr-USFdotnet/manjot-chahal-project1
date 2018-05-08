@@ -30,8 +30,7 @@ namespace RestaurantReviews.Library.Models
         public virtual ICollection<Review> Reviews { get; set; }
 
         public double AverageRating { get; set; }
-
-        //public int? ReviewCount {get;set;}
+        public int ReviewCount { get; set; }
 
         public string Address
         {

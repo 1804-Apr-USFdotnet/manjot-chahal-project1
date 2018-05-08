@@ -11,7 +11,7 @@ namespace RestaurantReviews.Library.Repositories
         T GetById(object id);
         void Insert(T entity);
         void Update(T entity);
-        void Delete(T entity);
-        IEnumerable<T> Table { get; }
+        void Delete(object id);
+        IEnumerable<T> GetAll { get; }
     }
 }

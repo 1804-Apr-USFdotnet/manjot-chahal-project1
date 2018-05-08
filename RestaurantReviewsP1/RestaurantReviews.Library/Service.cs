@@ -37,14 +37,44 @@ namespace RestaurantReviews.Library
             restrepo.Update(entity);
         }
 
-        public void DeleteRestaurant(Restaurant entity)
+        public void DeleteRestaurant(int id)
         {
-            restrepo.Delete(entity);
+            restrepo.Delete(id);
         }
 
-        public virtual IEnumerable<Restaurant> RestaurantTable()
+        public virtual IEnumerable<Restaurant> GetAllRestaurants()
         {
-            return restrepo.Table;
+            return restrepo.GetAll;
+        }
+
+        public virtual IEnumerable<Restaurant> SortByNameAscending(string q = null)
+        {
+            return restrepo.SortByNameAscending(q);
+        }
+
+        public virtual IEnumerable<Restaurant> SortByNameDescending(string q = null)
+        {
+            return restrepo.SortByNameDescending(q);
+        }
+
+        public virtual IEnumerable<Restaurant> SortByRating(string q = null)
+        {
+            return restrepo.SortByRating(q);
+        }
+
+        public virtual IEnumerable<Restaurant> Top3()
+        {
+            return restrepo.Top3();
+        }
+
+        public virtual IEnumerable<Restaurant> SortByNumberOfReviews(string q = null)
+        {
+            return restrepo.SortByNumberOfReviews(q);
+        }
+
+        public virtual IEnumerable<Restaurant> SearchRestaurants(string q)
+        {
+            return restrepo.SearchRestaurants(q);
         }
 
         public Review GetReviewById(object id)
@@ -62,14 +92,19 @@ namespace RestaurantReviews.Library
             revrepo.Update(entity);
         }
 
-        public void DeleteReview(Review entity)
+        public void DeleteReview(int id)
         {
-            revrepo.Delete(entity);
+            revrepo.Delete(id);
         }
 
-        public virtual IEnumerable<Review> ReviewTable()
+        public virtual IEnumerable<Review> GetAllReviews()
         {
-            return revrepo.Table;
+            return revrepo.GetAll;
+        }
+
+        public virtual IEnumerable<Review> GetAllReviewsByRestaurant(int id)
+        {
+            return revrepo.GetAllByRestaurant(id);
         }
     }
 }

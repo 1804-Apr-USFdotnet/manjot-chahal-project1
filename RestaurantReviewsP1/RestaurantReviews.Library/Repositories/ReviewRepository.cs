@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Data.Entity.Validation;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using RestaurantReviews.Data;
 using RestaurantReviews.Library.Models;
 
@@ -13,7 +10,6 @@ namespace RestaurantReviews.Library.Repositories
     public class ReviewRepository : IRestaurantReviewsRepository<Review>
     {
         private readonly RestaurantReviewsContext _context;
-        //private IDbSet<Restaurant> _entities;
 
         public ReviewRepository(RestaurantReviewsContext context)
         {
@@ -22,7 +18,6 @@ namespace RestaurantReviews.Library.Repositories
 
         public Review GetById(object id)
         {
-            //return this.Entities.Find(id);
             return DataToLibrary(this._context.Reviews.Find(id));
         }
 
@@ -34,7 +29,6 @@ namespace RestaurantReviews.Library.Repositories
                 {
                     throw new ArgumentNullException("entity");
                 }
-                //this.Entities.Add(entity);
                 this._context.Reviews.Add(LibraryToData(entity));
                 this._context.SaveChanges();
             }
@@ -63,33 +57,45 @@ namespace RestaurantReviews.Library.Repositories
                 {
                     throw new ArgumentNullException("entity");
                 }
-                this._context.SaveChanges();
-            }
-            catch (DbEntityValidationException dbEx)
-            {
-                var msg = string.Empty;
-                foreach (var validationErrors in dbEx.EntityValidationErrors)
-                {
-                    foreach (var validationError in validationErrors.ValidationErrors)
-                    {
-                        msg += Environment.NewLine + string.Format("Property: {0} Error: {1}", validationError.PropertyName, validationError.ErrorMessage);
-                    }
-                }
-                var fail = new Exception(msg, dbEx);
-                throw fail;
-            }
-        }
 
-        public void Delete(Review entity)
-        {
-            try
-            {
-                if (entity == null)
+                var oldRev = _context.Reviews.Find(entity.Id);
+
+                if (oldRev == null)
                 {
                     throw new ArgumentNullException("entity");
                 }
-                //this.Entities.Remove(entity);
-                this._context.Reviews.Remove(LibraryToData(entity));
+
+                oldRev.Rating = entity.Rating;
+                oldRev.User = entity.User;
+                oldRev.Comment = entity.Comment;
+
+                this._context.SaveChanges();
+            }
+            catch (DbEntityValidationException dbEx)
+            {
+                var msg = string.Empty;
+                foreach (var validationErrors in dbEx.EntityValidationErrors)
+                {
+                    foreach (var validationError in validationErrors.ValidationErrors)
+                    {
+                        msg += Environment.NewLine + string.Format("Property: {0} Error: {1}", validationError.PropertyName, validationError.ErrorMessage);
+                    }
+                }
+                var fail = new Exception(msg, dbEx);
+                throw fail;
+            }
+        }
+
+        public void Delete(object id)
+        {
+            try
+            {
+                var rev = this._context.Reviews.Find(id);
+                if (rev == null)
+                {
+                    throw new ArgumentNullException("entity");
+                }
+                this._context.Reviews.Remove(rev);
                 this._context.SaveChanges();
             }
             catch (DbEntityValidationException dbEx)
@@ -108,29 +114,22 @@ namespace RestaurantReviews.Library.Repositories
             }
         }
 
-        public virtual IEnumerable<Review> Table
+        public virtual IEnumerable<Review> GetAll
         {
             get
             {
-                //return this.Entities;
                 var list = this._context.Reviews.ToList();
                 return list.Select(x => DataToLibrary(x)).ToList();
             }
         }
 
-        //private IDbSet<Review> Entities
-        //{
-        //    get
-        //    {
-        //        if (_entities == null)
-        //        {
-        //            _entities = _context.Set<Review>();
-        //        }
-        //        return _entities;
-        //    }
-        //}
+        public virtual IEnumerable<Review> GetAllByRestaurant(int id)
+        {
+                var list = this._context.Reviews.Where(x => x.Restaurant.Id == id).ToList();
+                return list.Select(x => DataToLibrary(x)).ToList();
+        }
 
-        public static Review DataToLibrary(RestaurantReviews.Data.Models.Review dataModel)
+        public static Review DataToLibrary(Data.Models.Review dataModel)
         {
             var libModel = new Review()
             {
@@ -145,9 +144,9 @@ namespace RestaurantReviews.Library.Repositories
             return libModel;
         }
 
-        public static RestaurantReviews.Data.Models.Review LibraryToData(Review libModel)
+        public static Data.Models.Review LibraryToData(Review libModel)
         {
-            var dataModel = new RestaurantReviews.Data.Models.Review()
+            var dataModel = new Data.Models.Review()
             {
                 Rating = libModel.Rating,
                 Comment = libModel.Comment,
