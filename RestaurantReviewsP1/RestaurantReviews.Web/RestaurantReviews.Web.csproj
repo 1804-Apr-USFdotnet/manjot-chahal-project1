@@ -262,10 +262,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\RestaurantReviews.DataAccess\RestaurantReviews.DataAccess.csproj">
-      <Project>{A19A5BD3-AC18-439F-80E6-61289A97B881}</Project>
-      <Name>RestaurantReviews.DataAccess</Name>
-    </ProjectReference>
     <ProjectReference Include="..\RestaurantReviews.Data\RestaurantReviews.Data.csproj">
       <Project>{1459C571-0161-4E81-8846-1DF49E7FAF89}</Project>
       <Name>RestaurantReviews.Data</Name>
