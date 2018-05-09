@@ -4,16 +4,19 @@ using System.Data.Entity.Validation;
 using System.Linq;
 using RestaurantReviews.Data;
 using RestaurantReviews.Library.Models;
+using NLog;
 
 namespace RestaurantReviews.Library.Repositories
 {
     public class RestaurantRepository : IRestaurantReviewsRepository<Restaurant>
     {
         private readonly RestaurantReviewsContext _context;
+        public Logger logger;
 
         public RestaurantRepository(RestaurantReviewsContext context)
         {
             this._context = context;
+            logger = NLog.LogManager.GetCurrentClassLogger();
         }
 
         public Restaurant GetById(object id)
@@ -44,6 +47,7 @@ namespace RestaurantReviews.Library.Repositories
                     }
                 }
                 //Call Nlog Code...
+                logger.Info(msg);
                 var fail = new Exception(msg, dbEx);
                 throw fail;
             }

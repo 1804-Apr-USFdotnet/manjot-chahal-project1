@@ -1,0 +1,6 @@
+2018-05-09 08:04:15.4820 Successfully added new restaurant: momm
+2018-05-09 08:06:06.8930 Successfully added new restaurant: 808b
+2018-05-09 08:18:13.0495 Successfully deleted restaurant: 808b
+2018-05-09 08:18:17.9611 Successfully deleted restaurant: momm
+2018-05-09 08:18:23.0351 Successfully updated restaurant: Burger Kinga
+2018-05-09 08:18:27.6986 Successfully updated restaurant: Burger King

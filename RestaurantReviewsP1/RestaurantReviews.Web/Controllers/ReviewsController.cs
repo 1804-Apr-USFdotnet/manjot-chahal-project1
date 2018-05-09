@@ -4,16 +4,19 @@ using System.Net;
 using System.Web.Mvc;
 using RestaurantReviews.Library;
 using RestaurantReviews.Library.Models;
+using NLog;
 
 namespace RestaurantReviews.Web.Controllers
 {
     public class ReviewsController : Controller
     {
         private Service service;
+        public Logger logger;
 
         public ReviewsController()
         {
-                service = new Service();
+            service = new Service();
+            logger = NLog.LogManager.GetCurrentClassLogger();
         }
 
         // GET: Reviews
@@ -46,6 +49,7 @@ namespace RestaurantReviews.Web.Controllers
                     review.RestaurantId = id;
                     //TempData.Keep("RestaurantId");
                     service.InsertReview(review);
+                    logger.Info("Successfully added new review: " + review.Rating + " " + review.Comment);
                     return RedirectToAction("Index", new {id = id});
                 }
                 else
@@ -53,6 +57,7 @@ namespace RestaurantReviews.Web.Controllers
             }
             catch
             {
+                logger.Error("Failed to add review: " + review.User + " " + review.Rating + " " + review.Comment);
                 return View();
             }
         }
@@ -75,6 +80,7 @@ namespace RestaurantReviews.Web.Controllers
                 if (ModelState.IsValid)
                 {
                     service.UpdateReview(review);
+                    logger.Info("Successfully updated review: " + review.User + " " + review.Rating + " " + review.Comment);
                     int restid = Convert.ToInt32(TempData.Peek("RestaurantId"));
                     return RedirectToAction("Index", new {id = restid});
                 }
@@ -85,6 +91,7 @@ namespace RestaurantReviews.Web.Controllers
             }
             catch
             {
+                logger.Error("Failed to edit review: " + review.User + " " + review.Rating + " " + review.Comment);
                 return View();
             }
         }
@@ -113,14 +120,18 @@ namespace RestaurantReviews.Web.Controllers
         [HttpPost]
         public ActionResult Delete(int id)
         {
+            var rev = service.GetReviewById(id);
+            string name = rev.User + " " + rev.Rating + " " + rev.Comment;
             try
             {
                 service.DeleteReview(id);
+                logger.Info("Successfully deleted review: " + name);
                 int restid = Convert.ToInt32(TempData.Peek("RestaurantId"));
                 return RedirectToAction("Index", new {id = restid});
             }
             catch
             {
+                logger.Info("Failed to delete review: " + name);
                 return View();
             }
         }

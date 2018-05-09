@@ -4,16 +4,19 @@ using System.Net;
 using System.Web.Mvc;
 using RestaurantReviews.Library;
 using RestaurantReviews.Library.Models;
+using NLog;
 
 namespace RestaurantReviews.Web.Controllers
 {
     public class RestaurantsController : Controller
     {
         private Service service;
+        public Logger logger;
 
         public RestaurantsController()
         {
             service = new Service();
+            logger = NLog.LogManager.GetCurrentClassLogger();
         }
 
         public ActionResult Index(int? id, string q)
@@ -82,6 +85,7 @@ namespace RestaurantReviews.Web.Controllers
                 if (ModelState.IsValid)
                 {
                     service.InsertRestaurant(restaurant);
+                    logger.Info("Successfully added new restaurant: " + restaurant.Name);
                     return RedirectToAction("Index");
                 }
                 else
@@ -91,6 +95,7 @@ namespace RestaurantReviews.Web.Controllers
             catch
             {
                 //log problem
+                logger.Error("Failed to add restaurant: " + restaurant.Name);
                 return View();
             }
         }
@@ -110,6 +115,7 @@ namespace RestaurantReviews.Web.Controllers
                 if (ModelState.IsValid)
                 {
                     service.UpdateRestaurant(restaurant);
+                    logger.Info("Successfully updated restaurant: " + restaurant.Name);
                     return RedirectToAction("Index");
                 }
                 else
@@ -119,6 +125,7 @@ namespace RestaurantReviews.Web.Controllers
             }
             catch
             {
+                logger.Error("Failed to edit restaurant: " + restaurant.Name);
                 return View();
             }
         }
@@ -144,13 +151,16 @@ namespace RestaurantReviews.Web.Controllers
         [HttpPost, ActionName("Delete")]
         public ActionResult DeleteConfirmed(int id)
         {
+            string name = service.GetRestaurantById(id).Name;
             try
             {
                 service.DeleteRestaurant(id);
+                logger.Info("Successfully deleted restaurant: " + name);
                 return RedirectToAction("Index");
             }
             catch
             {
+                logger.Info("Failed to delete restaurant: " + name);
                 return View();
             }
         }
